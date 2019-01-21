@@ -1,5 +1,6 @@
 package com.androiddesdecero.sql;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
@@ -60,11 +61,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void insertarPeso(){
-
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(PesoContract.PesoEntry.COLUMN_PESO_FECHA, fecha);
+        values.put(PesoContract.PesoEntry.COLUMN_PESO_PESO, peso);
+        db.insert(PesoContract.PesoEntry.TABLE_NAME, null, values);
     }
 
     private void mostrarInfoDatabase(){
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        String[] projection = {
+                PesoContract.PesoEntry._ID,
+                PesoContract.PesoEntry.COLUMN_PESO_FECHA,
+                PesoContract.PesoEntry.COLUMN_PESO_PESO
+        };
+        Cursor cursor = db.query(PesoContract.PesoEntry.TABLE_NAME, projection, null, null, null, null, null);
+        int idColumnIndex = cursor.getColumnIndex(PesoContract.PesoEntry._ID);
+        int fechaColumnIndex = cursor.getColumnIndex(PesoContract.PesoEntry.COLUMN_PESO_FECHA);
+        int pesoColumnIndex = cursor.getColumnIndex(PesoContract.PesoEntry.COLUMN_PESO_PESO);
+        while (cursor.moveToNext()){
+            int currentID = cursor.getInt(idColumnIndex);
+            String fechaActual = cursor.getString(fechaColumnIndex);
+            String pesoActual = cursor.getString(pesoColumnIndex);
+            textView.append("\n" + currentID + " " + fechaActual + " " + pesoActual);
+        }
+        cursor.close();
+
+        /*
         Cursor cursor = db.rawQuery("SELECT * FROM " + PesoContract.PesoEntry.TABLE_NAME, null);
         try{
             textView.setText("Numero de Filas " + cursor.getCount());
@@ -72,5 +95,6 @@ public class MainActivity extends AppCompatActivity {
             //Siempre hay que cerrar el cursor
             cursor.close();
         }
+        */
     }
 }
